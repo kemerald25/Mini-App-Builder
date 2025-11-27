@@ -1,0 +1,31 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "frame": {
+    "version": "1",
+    "name": "Royale",
+    "homeUrl": "https://devroyale.xyz",
+    "iconUrl": "https://devroyale.xyz/icon.png",
+    "splashImageUrl": "https://devroyale.xyz/splash.png",
+    "splashBackgroundColor": "#000000",
+    "webhookUrl": "https://devroyale.xyz/api/webhook",
+    "subtitle": "Just a dev",
+    "description": "Just a dev",
+    "screenshotUrls": [],
+    "primaryCategory": "social",
+    "tags": [
+      "social",
+      "miniapp",
+      "base"
+    ],
+    "heroImageUrl": "https://devroyale.xyz/og.png",
+    "tagline": "Just a dev",
+    "ogTitle": "Royale",
+    "ogDescription": "Just a dev",
+    "ogImageUrl": "https://devroyale.xyz/og.png",
+    "noindex": false
+  }
+}

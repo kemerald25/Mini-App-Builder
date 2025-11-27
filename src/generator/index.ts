@@ -10,6 +10,12 @@ import {
   generateGlobalsCSS,
   generateAppKitConfig,
   generateAppKitContext,
+  generateOnchainKitProvider,
+  generateBottomNav,
+  generateBrandFooter,
+  generateExplorePage,
+  generateProfilePage,
+  generateSettingsPage,
 } from './templates.js';
 import {
   generateSimplePage,
@@ -102,6 +108,39 @@ export class MiniAppGenerator {
       content: generateAppKitContext(),
     });
 
+    // OnchainKit Provider wrapper (client component)
+    files.push({
+      path: 'components/OnchainKitProvider.tsx',
+      content: generateOnchainKitProvider(),
+    });
+
+    // Bottom Navigation component
+    files.push({
+      path: 'components/BottomNav.tsx',
+      content: generateBottomNav(),
+    });
+
+    files.push({
+      path: 'components/BrandFooter.tsx',
+      content: generateBrandFooter(),
+    });
+
+    // Additional pages
+    files.push({
+      path: 'app/explore/page.tsx',
+      content: generateExplorePage(this.config),
+    });
+
+    files.push({
+      path: 'app/profile/page.tsx',
+      content: generateProfilePage(this.config),
+    });
+
+    files.push({
+      path: 'app/settings/page.tsx',
+      content: generateSettingsPage(this.config),
+    });
+
     // Manifest
     files.push({
       path: 'public/.well-known/farcaster.json',
@@ -120,7 +159,7 @@ export class MiniAppGenerator {
     });
 
     files.push({
-      path: 'next.config.cjs',
+      path: 'next.config.mjs',
       content: generateNextConfig(),
     });
 
@@ -130,13 +169,13 @@ export class MiniAppGenerator {
     });
 
     files.push({
-      path: 'postcss.config.cjs',
-      content: `module.exports = {
+      path: 'postcss.config.mjs',
+      content: `export default {
   plugins: {
-    tailwindcss: {},
+    '@tailwindcss/postcss': {},
     autoprefixer: {},
   },
-}
+};
 `,
     });
 
@@ -208,6 +247,11 @@ ${this.config.description}
 2. Install dependencies:
    \`\`\`
    npm install
+   \`\`\`
+   
+   If you encounter dependency conflicts, try:
+   \`\`\`
+   npm install --legacy-peer-deps
    \`\`\`
 
 3. Run the development server:

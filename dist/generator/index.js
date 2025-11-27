@@ -1,4 +1,4 @@
-import { generateLayout, generateManifest, generateEnvExample, generatePackageJson, generateTsConfig, generateNextConfig, generateTailwindConfig, generateGlobalsCSS, generateAppKitConfig, generateAppKitContext, } from './templates.js';
+import { generateLayout, generateManifest, generateEnvExample, generatePackageJson, generateTsConfig, generateNextConfig, generateTailwindConfig, generateGlobalsCSS, generateAppKitConfig, generateAppKitContext, generateOnchainKitProvider, generateBottomNav, generateExplorePage, generateProfilePage, generateSettingsPage, } from './templates.js';
 import { generateSimplePage, generateTransactionPage, generateAgentIntegratedPage, generateGamePage, generatePollPage, generateNFTGalleryPage, } from './page-templates.js';
 import { generateAuthHook, generateAuthApiRoute } from './auth-templates.js';
 // These imports are safe in Node.js environments (CLI and API routes)
@@ -73,6 +73,29 @@ export class MiniAppGenerator {
             path: 'context/index.tsx',
             content: generateAppKitContext(),
         });
+        // OnchainKit Provider wrapper (client component)
+        files.push({
+            path: 'components/OnchainKitProvider.tsx',
+            content: generateOnchainKitProvider(),
+        });
+        // Bottom Navigation component
+        files.push({
+            path: 'components/BottomNav.tsx',
+            content: generateBottomNav(),
+        });
+        // Additional pages
+        files.push({
+            path: 'app/explore/page.tsx',
+            content: generateExplorePage(this.config),
+        });
+        files.push({
+            path: 'app/profile/page.tsx',
+            content: generateProfilePage(this.config),
+        });
+        files.push({
+            path: 'app/settings/page.tsx',
+            content: generateSettingsPage(this.config),
+        });
         // Manifest
         files.push({
             path: 'public/.well-known/farcaster.json',
@@ -88,7 +111,7 @@ export class MiniAppGenerator {
             content: generateTsConfig(),
         });
         files.push({
-            path: 'next.config.cjs',
+            path: 'next.config.mjs',
             content: generateNextConfig(),
         });
         files.push({
@@ -96,13 +119,13 @@ export class MiniAppGenerator {
             content: generateTailwindConfig(),
         });
         files.push({
-            path: 'postcss.config.cjs',
-            content: `module.exports = {
+            path: 'postcss.config.mjs',
+            content: `export default {
   plugins: {
-    tailwindcss: {},
+    '@tailwindcss/postcss': {},
     autoprefixer: {},
   },
-}
+};
 `,
         });
         // Empty module stub for optional dependencies
@@ -170,6 +193,11 @@ ${this.config.description}
 2. Install dependencies:
    \`\`\`
    npm install
+   \`\`\`
+   
+   If you encounter dependency conflicts, try:
+   \`\`\`
+   npm install --legacy-peer-deps
    \`\`\`
 
 3. Run the development server:

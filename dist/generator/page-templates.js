@@ -1,11 +1,46 @@
+function generateFooter() {
+    return `
+          <footer className="mt-12 pt-8 border-t dark:border-gray-700 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              Built with ❤️ by{' '}
+              <a
+                href="https://x.com/iamdevroyale"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 underline"
+              >
+                Dev Royale
+              </a>
+            </p>
+            <div className="flex justify-center gap-4 text-sm">
+              <a
+                href="https://x.com/iamdevroyale"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              >
+                X
+              </a>
+              <span className="text-gray-400">•</span>
+              <a
+                href="https://github.com/kemerald25"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              >
+                GitHub
+              </a>
+            </div>
+          </footer>`;
+}
 export function generateSimplePage(config) {
     return `'use client';
 
-import { useMiniKit } from '@coinbase/onchainkit';
+import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 
 export default function Home() {
-  const { user } = useMiniKit();
+  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
 
@@ -24,6 +59,7 @@ export default function Home() {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </div>
+          ${generateFooter()}
         </div>
       </div>
     );
@@ -73,6 +109,7 @@ export default function Home() {
               Get Started
             </button>
           </div>
+          ${generateFooter()}
         </div>
       </main>
     </div>
@@ -83,13 +120,13 @@ export default function Home() {
 export function generateTransactionPage(config) {
     return `'use client';
 
-import { useMiniKit } from '@coinbase/onchainkit';
+import { useOnchainKit } from '@coinbase/onchainkit';
 import { Transaction, TransactionButton } from '@coinbase/onchainkit/transaction';
 import { Wallet } from '@coinbase/onchainkit/wallet';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 
 export default function Home() {
-  const { user } = useMiniKit();
+  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
 
@@ -108,6 +145,7 @@ export default function Home() {
               {isLoading ? 'Signing in...' : 'Sign In to Continue'}
             </button>
           </div>
+          ${generateFooter()}
         </div>
       </div>
     );
@@ -192,11 +230,11 @@ export function generateAgentIntegratedPage(config) {
     const agentAddress = config.agentAddress || '0x0000000000000000000000000000000000000000';
     return `'use client';
 
-import { useMiniKit } from '@coinbase/onchainkit';
+import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 
 export default function Home() {
-  const { user } = useMiniKit();
+  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
 
@@ -215,6 +253,7 @@ export default function Home() {
               {isLoading ? 'Signing in...' : 'Sign In to Continue'}
             </button>
           </div>
+          ${generateFooter()}
         </div>
       </div>
     );
@@ -285,12 +324,12 @@ export default function Home() {
 export function generateGamePage(config) {
     return `'use client';
 
-import { useMiniKit } from '@coinbase/onchainkit';
+import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { useState } from 'react';
 
 export default function Home() {
-  const { user } = useMiniKit();
+  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
   const [score, setScore] = useState(0);
@@ -310,6 +349,7 @@ export default function Home() {
               {isLoading ? 'Signing in...' : 'Sign In to Play'}
             </button>
           </div>
+          ${generateFooter()}
         </div>
       </div>
     );
@@ -371,12 +411,12 @@ export default function Home() {
 export function generatePollPage(config) {
     return `'use client';
 
-import { useMiniKit } from '@coinbase/onchainkit';
+import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { useState } from 'react';
 
 export default function Home() {
-  const { user } = useMiniKit();
+  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -397,6 +437,7 @@ export default function Home() {
               {isLoading ? 'Signing in...' : 'Sign In to Vote'}
             </button>
           </div>
+          ${generateFooter()}
         </div>
       </div>
     );
@@ -493,7 +534,7 @@ export default function Home() {
 export function generateNFTGalleryPage(config) {
     return `'use client';
 
-import { useMiniKit } from '@coinbase/onchainkit';
+import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { useState } from 'react';
 
@@ -511,7 +552,7 @@ const mockNFTs: NFT[] = [
 ];
 
 export default function Home() {
-  const { user } = useMiniKit();
+  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
@@ -531,6 +572,7 @@ export default function Home() {
               {isLoading ? 'Signing in...' : 'Sign In to View Gallery'}
             </button>
           </div>
+          ${generateFooter()}
         </div>
       </div>
     );
@@ -601,6 +643,7 @@ export default function Home() {
               </div>
             </div>
           )}
+          ${generateFooter()}
         </div>
       </main>
     </div>

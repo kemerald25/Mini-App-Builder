@@ -1,7 +1,4 @@
-import { MiniAppConfig } from '../types.js';
-
-export function generateAuthHook(): string {
-  return `'use client';
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
@@ -19,14 +16,19 @@ interface AuthState {
 function isFarcasterMiniapp(): boolean {
   if (typeof window === 'undefined') return false;
   try {
-    // Check if sdk is available and quickAuth is properly initialized
-    // In a real miniapp, quickAuth will be available and functional
-    return (
-      typeof sdk !== 'undefined' && 
-      sdk !== null && 
-      sdk.quickAuth && 
-      typeof sdk.quickAuth.getToken === 'function'
-    );
+    // Check multiple indicators that we're in a Farcaster miniapp:
+    // 1. SDK exists and is initialized
+    // 2. quickAuth exists and has getToken method
+    // 3. We're in an iframe (miniapps run in iframes)
+    // 4. Check for Farcaster-specific user agent or window properties
+    const hasSDK = typeof sdk !== 'undefined' && sdk !== null;
+    const hasQuickAuth = hasSDK && sdk.quickAuth && typeof sdk.quickAuth.getToken === 'function';
+    const isInIframe = window.self !== window.top;
+    const hasFarcasterUA = typeof navigator !== 'undefined' && 
+      (navigator.userAgent.includes('Farcaster') || navigator.userAgent.includes('Base'));
+    
+    // Only return true if we have multiple indicators (more reliable)
+    return hasQuickAuth && (isInIframe || hasFarcasterUA);
   } catch {
     return false;
   }
@@ -67,8 +69,8 @@ export function useQuickAuth() {
           const { token } = await sdk.quickAuth.getToken();
           
           const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_ORIGIN || window.location.origin;
-          const response = await sdk.quickAuth.fetch(\`\${backendOrigin}/api/auth\`, {
-            headers: { 'Authorization': \`Bearer \${token}\` }
+          const response = await sdk.quickAuth.fetch(`${backendOrigin}/api/auth`, {
+            headers: { 'Authorization': `Bearer ${token}` }
           });
           
           if (!response.ok) {
@@ -121,12 +123,12 @@ export function useQuickAuth() {
       }
 
       // Sign a message for authentication
-      const message = \`Sign in to ${process.env.NEXT_PUBLIC_APP_NAME || 'this app'} at \${new Date().toISOString()}\`;
+      const message = `Sign in to ${process.env.NEXT_PUBLIC_APP_NAME || 'this app'} at ${new Date().toISOString()}`;
       const signature = await signMessageAsync({ message });
 
       // Send to backend for verification
       const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_ORIGIN || window.location.origin;
-      const response = await fetch(\`\${backendOrigin}/api/auth\`, {
+      const response = await fetch(`${backendOrigin}/api/auth`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,79 +177,3 @@ export function useQuickAuth() {
     isAuthenticated: isMiniapp ? !!authState.token : (isConnected && !!authState.token),
   };
 }
-`;
-}
-
-export function generateAuthApiRoute(config: MiniAppConfig): string {
-  const domain = config.homeUrl.replace(/^https?:\/\//, '').replace(/\/$/, '') || 'your-domain.com';
-  
-  return `import { createClient, Errors } from '@farcaster/quick-auth';
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyMessage } from 'viem';
-
-const domain = process.env.QUICK_AUTH_DOMAIN || '${domain}';
-const client = createClient();
-
-// This endpoint handles both Quick Auth (Farcaster miniapp) and WalletConnect (browser) authentication
-export async function GET(request: NextRequest) {
-  const authorization = request.headers.get('Authorization');
-  
-  if (!authorization?.startsWith('Bearer ')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const token = authorization.split(' ')[1];
-
-  try {
-    // Try Quick Auth verification first (for Farcaster miniapp)
-    const payload = await client.verifyJwt({ token, domain });
-    
-    return NextResponse.json({
-      fid: payload.sub,
-    });
-  } catch (e) {
-    if (e instanceof Errors.InvalidTokenError) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-    throw e;
-  }
-}
-
-// POST endpoint for WalletConnect authentication (browser)
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { address, message, signature } = body;
-
-    if (!address || !message || !signature) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
-    // Ensure signature starts with 0x
-    const formattedSignature = signature.startsWith('0x') ? signature : \`0x\${signature}\`;
-    
-    // Verify the signature
-    const isValid = await verifyMessage({
-      address: address as \`0x\${string}\`,
-      message,
-      signature: formattedSignature as \`0x\${string}\`,
-    });
-
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-    }
-
-    // Return authenticated user data
-    // In a real app, you might want to create a session token here
-    return NextResponse.json({
-      address,
-      token: signature, // Using signature as token for simplicity
-    });
-  } catch (error) {
-    console.error('Authentication error:', error);
-    return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });
-  }
-}
-`;
-}
-

@@ -17,8 +17,14 @@ interface AuthState {
 function isFarcasterMiniapp(): boolean {
   if (typeof window === 'undefined') return false;
   try {
-    // Check if sdk is available and initialized
-    return typeof sdk !== 'undefined' && sdk !== null;
+    // Check if sdk is available and quickAuth is properly initialized
+    // In a real miniapp, quickAuth will be available and functional
+    return (
+      typeof sdk !== 'undefined' && 
+      sdk !== null && 
+      sdk.quickAuth && 
+      typeof sdk.quickAuth.getToken === 'function'
+    );
   } catch {
     return false;
   }
@@ -33,7 +39,8 @@ export function useQuickAuth() {
 
   const isMiniapp = isFarcasterMiniapp();
   const { address, isConnected } = useAccount();
-  const { open } = useAppKit();
+  // Always initialize AppKit (it's needed for wallet connection outside miniapp)
+  const appKit = useAppKit();
   const { disconnect } = useDisconnect();
   const { signMessageAsync } = useSignMessage();
   const addressRef = useRef(address);
@@ -47,84 +54,100 @@ export function useQuickAuth() {
     try {
       setAuthState((prev) => ({ ...prev, isLoading: true }));
 
+      // Try Quick Auth first if we think we're in a miniapp
       if (isMiniapp) {
-        // Use Quick Auth for Farcaster miniapp
-        const { token } = await sdk.quickAuth.getToken();
-        
-        const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_ORIGIN || window.location.origin;
-        const response = await sdk.quickAuth.fetch(\`\${backendOrigin}/api/auth\`, {
-          headers: { 'Authorization': \`Bearer \${token}\` }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Authentication failed');
-        }
-        
-        const data = await response.json();
-        
-        setAuthState({
-          token,
-          userData: data,
-          isLoading: false,
-        });
-      } else {
-        // Use Reown AppKit (WalletConnect) for browser
-        let currentAddress = addressRef.current;
-        
-        if (!isConnected || !currentAddress) {
-          // Open AppKit modal to connect wallet
-          open();
-          
-          // Wait for connection to establish and account to be available
-          // Poll for address with timeout (max 10 seconds)
-          let attempts = 0;
-          while (!currentAddress && attempts < 100) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            currentAddress = addressRef.current;
-            attempts++;
+        try {
+          // Double-check quickAuth is available and functional
+          if (!sdk.quickAuth || typeof sdk.quickAuth.getToken !== 'function') {
+            throw new Error('Quick Auth not available');
           }
           
-          if (!currentAddress) {
-            throw new Error('Wallet connection failed. Please connect your wallet and try again.');
+          const { token } = await sdk.quickAuth.getToken();
+          
+          const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_ORIGIN || window.location.origin;
+          const response = await sdk.quickAuth.fetch(\`\${backendOrigin}/api/auth\`, {
+            headers: { 'Authorization': \`Bearer \${token}\` }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Authentication failed');
           }
+          
+          const data = await response.json();
+          
+          setAuthState({
+            token,
+            userData: data,
+            isLoading: false,
+          });
+          return; // Success, exit early
+        } catch (quickAuthError) {
+          // If Quick Auth fails, fall back to AppKit
+          console.warn('Quick Auth failed, falling back to AppKit:', quickAuthError);
+          // Continue to AppKit flow below
         }
-
-        // Ensure we have an address
-        if (!currentAddress) {
-          throw new Error('Wallet address not available');
-        }
-
-        // Sign a message for authentication
-        const message = \`Sign in to ${process.env.NEXT_PUBLIC_APP_NAME || 'this app'} at \${new Date().toISOString()}\`;
-        const signature = await signMessageAsync({ message });
-
-        // Send to backend for verification
-        const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_ORIGIN || window.location.origin;
-        const response = await fetch(\`\${backendOrigin}/api/auth\`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            address: currentAddress,
-            message,
-            signature,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Authentication failed');
-        }
-
-        const data = await response.json();
-        const token = data.token || signature; // Use signature as token if backend doesn't provide one
-
-        setAuthState({
-          token,
-          userData: { address: currentAddress, ...data },
-          isLoading: false,
-        });
       }
+      
+      // Use Reown AppKit (WalletConnect) for browser or if Quick Auth failed
+      let currentAddress = addressRef.current;
+      
+      if (!isConnected || !currentAddress) {
+        // Open AppKit modal to connect wallet
+        if (appKit?.open) {
+          appKit.open();
+        } else {
+          throw new Error('Wallet connection not available. Please set NEXT_PUBLIC_PROJECT_ID or use the app in a Farcaster miniapp.');
+        }
+        
+        // Wait for connection to establish and account to be available
+        // Poll for address with timeout (max 10 seconds)
+        let attempts = 0;
+        while (!currentAddress && attempts < 100) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          currentAddress = addressRef.current;
+          attempts++;
+        }
+        
+        if (!currentAddress) {
+          throw new Error('Wallet connection failed. Please connect your wallet and try again.');
+        }
+      }
+
+      // Ensure we have an address
+      if (!currentAddress) {
+        throw new Error('Wallet address not available');
+      }
+
+      // Sign a message for authentication
+      const message = \`Sign in to ${process.env.NEXT_PUBLIC_APP_NAME || 'this app'} at \${new Date().toISOString()}\`;
+      const signature = await signMessageAsync({ message });
+
+      // Send to backend for verification
+      const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_ORIGIN || window.location.origin;
+      const response = await fetch(\`\${backendOrigin}/api/auth\`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          address: currentAddress,
+          message,
+          signature,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Authentication failed');
+      }
+
+      const data = await response.json();
+      const token = data.token || signature; // Use signature as token if backend doesn't provide one
+
+      setAuthState({
+        token,
+        userData: { address: currentAddress, ...data },
+        isLoading: false,
+      });
     } catch (error) {
       console.error('Authentication failed:', error);
       setAuthState((prev) => ({ ...prev, isLoading: false }));
@@ -196,11 +219,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Ensure signature starts with 0x
+    const formattedSignature = signature.startsWith('0x') ? signature : \`0x\${signature}\`;
+    
     // Verify the signature
     const isValid = await verifyMessage({
       address: address as \`0x\${string}\`,
       message,
-      signature: signature as \`0x\${string}\`,
+      signature: formattedSignature as \`0x\${string}\`,
     });
 
     if (!isValid) {
