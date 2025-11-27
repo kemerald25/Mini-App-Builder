@@ -1,7 +1,5 @@
-import { MiniAppConfig, GeneratedFile } from '../types.js';
-
-export function generateLayout(config: MiniAppConfig): string {
-  return `import { OnchainKitProvider } from '@coinbase/onchainkit';
+export function generateLayout(config) {
+    return `import { OnchainKitProvider } from '@coinbase/onchainkit';
 import { base } from 'wagmi/chains';
 import './globals.css';
 import { headers } from 'next/headers';
@@ -37,41 +35,38 @@ export default async function RootLayout({
 }
 `;
 }
-
-export function generateManifest(config: MiniAppConfig): string {
-  const manifest = {
-    accountAssociation: {
-      header: '',
-      payload: '',
-      signature: ''
-    },
-    frame: {
-      version: '1',
-      name: config.name,
-      homeUrl: config.homeUrl,
-      iconUrl: config.iconUrl || `${config.homeUrl}/icon.png`,
-      splashImageUrl: `${config.homeUrl}/splash.png`,
-      splashBackgroundColor: '#000000',
-      webhookUrl: `${config.homeUrl}/api/webhook`,
-      subtitle: config.description,
-      description: config.description,
-      screenshotUrls: [],
-      primaryCategory: config.category,
-      tags: [config.category, 'miniapp', 'base'],
-      heroImageUrl: `${config.homeUrl}/og.png`,
-      tagline: config.description,
-      ogTitle: config.name,
-      ogDescription: config.description,
-      ogImageUrl: `${config.homeUrl}/og.png`,
-      noindex: false
-    }
-  };
-
-  return JSON.stringify(manifest, null, 2);
+export function generateManifest(config) {
+    const manifest = {
+        accountAssociation: {
+            header: '',
+            payload: '',
+            signature: ''
+        },
+        frame: {
+            version: '1',
+            name: config.name,
+            homeUrl: config.homeUrl,
+            iconUrl: config.iconUrl || `${config.homeUrl}/icon.png`,
+            splashImageUrl: `${config.homeUrl}/splash.png`,
+            splashBackgroundColor: '#000000',
+            webhookUrl: `${config.homeUrl}/api/webhook`,
+            subtitle: config.description,
+            description: config.description,
+            screenshotUrls: [],
+            primaryCategory: config.category,
+            tags: [config.category, 'miniapp', 'base'],
+            heroImageUrl: `${config.homeUrl}/og.png`,
+            tagline: config.description,
+            ogTitle: config.name,
+            ogDescription: config.description,
+            ogImageUrl: `${config.homeUrl}/og.png`,
+            noindex: false
+        }
+    };
+    return JSON.stringify(manifest, null, 2);
 }
-
-export function generateEnvExample(): string {
-  return `NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_api_key_here
+export function generateEnvExample() {
+    return `NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_api_key_here
 NEXT_PUBLIC_BACKEND_ORIGIN=http://localhost:3000
 NEXT_PUBLIC_PROJECT_ID=your_reown_project_id_here
 NEXT_PUBLIC_APP_NAME=Your App Name
@@ -79,9 +74,8 @@ NEXT_PUBLIC_APP_DESCRIPTION=Your App Description
 QUICK_AUTH_DOMAIN=your-domain.com
 `;
 }
-
-export function generatePackageJson(config: MiniAppConfig): string {
-  return `{
+export function generatePackageJson(config) {
+    return `{
   "name": "${config.name.toLowerCase().replace(/\s+/g, '-')}",
   "version": "0.1.0",
   "private": true,
@@ -119,9 +113,8 @@ export function generatePackageJson(config: MiniAppConfig): string {
 }
 `;
 }
-
-export function generateTsConfig(): string {
-  return `{
+export function generateTsConfig() {
+    return `{
   "compilerOptions": {
     "target": "ES2020",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -150,9 +143,8 @@ export function generateTsConfig(): string {
 }
 `;
 }
-
-export function generateNextConfig(): string {
-  return `const webpack = require('webpack');
+export function generateNextConfig() {
+    return `const webpack = require('webpack');
 const path = require('path');
 
 /** @type {import('next').NextConfig} */
@@ -176,9 +168,8 @@ const nextConfig = {
 module.exports = nextConfig
 `;
 }
-
-export function generateTailwindConfig(): string {
-  return `import type { Config } from 'tailwindcss'
+export function generateTailwindConfig() {
+    return `import type { Config } from 'tailwindcss'
 
 const config: Config = {
   content: [
@@ -193,9 +184,8 @@ const config: Config = {
 export default config
 `;
 }
-
-export function generateGlobalsCSS(): string {
-  return `@tailwind base;
+export function generateGlobalsCSS() {
+    return `@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -220,9 +210,8 @@ body {
 }
 `;
 }
-
-export function generateAppKitConfig(): string {
-  return `import { cookieStorage, createStorage, http } from '@wagmi/core';
+export function generateAppKitConfig() {
+    return `import { cookieStorage, createStorage, http } from '@wagmi/core';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { base } from '@reown/appkit/networks';
 
@@ -248,9 +237,8 @@ export const wagmiAdapter = new WagmiAdapter({
 export const config = wagmiAdapter.wagmiConfig;
 `;
 }
-
-export function generateAppKitContext(): string {
-  return `'use client';
+export function generateAppKitContext() {
+    return `'use client';
 
 import { wagmiAdapter, projectId } from '@/config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -297,4 +285,3 @@ function ContextProvider({ children, cookies }: { children: ReactNode; cookies: 
 export default ContextProvider;
 `;
 }
-

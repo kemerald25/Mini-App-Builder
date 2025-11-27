@@ -1,7 +1,5 @@
-import { MiniAppConfig } from '../types.js';
-
-export function generateSimplePage(config: MiniAppConfig): string {
-  return `'use client';
+export function generateSimplePage(config) {
+    return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
@@ -82,9 +80,8 @@ export default function Home() {
 }
 `;
 }
-
-export function generateTransactionPage(config: MiniAppConfig): string {
-  return `'use client';
+export function generateTransactionPage(config) {
+    return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
 import { Transaction, TransactionButton } from '@coinbase/onchainkit/transaction';
@@ -191,11 +188,9 @@ export default function Home() {
 }
 `;
 }
-
-export function generateAgentIntegratedPage(config: MiniAppConfig): string {
-  const agentAddress = config.agentAddress || '0x0000000000000000000000000000000000000000';
-  
-  return `'use client';
+export function generateAgentIntegratedPage(config) {
+    const agentAddress = config.agentAddress || '0x0000000000000000000000000000000000000000';
+    return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
@@ -287,9 +282,8 @@ export default function Home() {
 }
 `;
 }
-
-export function generateGamePage(config: MiniAppConfig): string {
-  return `'use client';
+export function generateGamePage(config) {
+    return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
@@ -374,9 +368,8 @@ export default function Home() {
 }
 `;
 }
-
-export function generatePollPage(config: MiniAppConfig): string {
-  return `'use client';
+export function generatePollPage(config) {
+    return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
@@ -497,9 +490,8 @@ export default function Home() {
 }
 `;
 }
-
-export function generateNFTGalleryPage(config: MiniAppConfig): string {
-  return `'use client';
+export function generateNFTGalleryPage(config) {
+    return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
@@ -616,4 +608,3 @@ export default function Home() {
 }
 `;
 }
-

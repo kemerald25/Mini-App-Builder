@@ -2,6 +2,29 @@
 
 AI Agent-powered Mini App builder for generating production-ready Next.js Mini Apps that work in Base App.
 
+## Quick Start (npm)
+
+The easiest way to use the Mini App Builder is via npx (no installation required):
+
+```bash
+npx @devroyale/miniapp
+```
+
+Or use the shorter command:
+
+```bash
+npx miniapp
+```
+
+This will start an interactive CLI that guides you through creating your Mini App. The generated app will be created in your current directory.
+
+Alternatively, install globally:
+
+```bash
+npm install -g @devroyale/miniapp
+miniapp
+```
+
 ## Features
 
 - 🚀 **Quick Generation** - Generate complete Mini App code in seconds
@@ -46,9 +69,9 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### CLI Usage
+### CLI Usage (Development)
 
-Generate a Mini App via command line:
+When developing the builder tool itself, generate a Mini App via:
 
 ```bash
 npm run generate
@@ -59,6 +82,8 @@ Or using tsx directly:
 ```bash
 npx tsx src/cli.ts
 ```
+
+**Note:** For end users, use `npx init-builder` instead (see Quick Start above).
 
 ## What Gets Generated
 

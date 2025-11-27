@@ -1,4 +1,4 @@
-import { MiniAppConfig, GeneratedFile, AppType } from '../types';
+import { MiniAppConfig, GeneratedFile, AppType } from '../types.js';
 import {
   generateLayout,
   generateManifest,
@@ -8,7 +8,9 @@ import {
   generateNextConfig,
   generateTailwindConfig,
   generateGlobalsCSS,
-} from './templates';
+  generateAppKitConfig,
+  generateAppKitContext,
+} from './templates.js';
 import {
   generateSimplePage,
   generateTransactionPage,
@@ -16,8 +18,8 @@ import {
   generateGamePage,
   generatePollPage,
   generateNFTGalleryPage,
-} from './page-templates';
-import { generateAuthHook, generateAuthApiRoute } from './auth-templates';
+} from './page-templates.js';
+import { generateAuthHook, generateAuthApiRoute } from './auth-templates.js';
 // These imports are safe in Node.js environments (CLI and API routes)
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -88,6 +90,18 @@ export class MiniAppGenerator {
       content: generateAuthApiRoute(this.config),
     });
 
+    // AppKit config
+    files.push({
+      path: 'config/index.ts',
+      content: generateAppKitConfig(),
+    });
+
+    // AppKit context provider
+    files.push({
+      path: 'context/index.tsx',
+      content: generateAppKitContext(),
+    });
+
     // Manifest
     files.push({
       path: 'public/.well-known/farcaster.json',
@@ -123,6 +137,14 @@ export class MiniAppGenerator {
     autoprefixer: {},
   },
 }
+`,
+    });
+
+    // Empty module stub for optional dependencies
+    files.push({
+      path: 'src/utils/empty-module.js',
+      content: `// Empty module stub for optional dependencies
+module.exports = {};
 `,
     });
 

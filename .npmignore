@@ -1,0 +1,57 @@
+# Source files (only dist/ is needed)
+src/
+*.ts
+!*.d.ts
+
+# Next.js app files (not needed for CLI package)
+.next/
+out/
+public/
+
+# Development files
+node_modules/
+.env*
+!.env.example
+
+# Build artifacts
+*.tsbuildinfo
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git files
+.git/
+.gitignore
+
+# Documentation (keep README.md, exclude others)
+CSP_FIXES.md
+PACKAGE_SETUP.md
+USAGE.md
+
+# Config files for Next.js app
+next.config.cjs
+postcss.config.cjs
+tailwind.config.ts
+
+# Test files
+coverage/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Vercel
+.vercel/
+
+# Generated miniapps
+*-miniapp/
+

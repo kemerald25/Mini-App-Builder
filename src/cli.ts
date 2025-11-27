@@ -3,8 +3,8 @@
 import * as readline from 'readline';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { MiniAppGenerator } from './generator/index';
-import { MiniAppConfig } from './types';
+import { MiniAppGenerator } from './generator/index.js';
+import { MiniAppConfig } from './types.js';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -87,7 +87,14 @@ async function main() {
     const generator = new MiniAppGenerator(config);
     await generator.writeFiles(outputDir);
 
-    console.log(`\n✅ Mini App generated successfully!`);
+    // Display DEV ROYALE branding
+    console.log('\n');
+    console.log('╔════════════════════════════════════╗');
+    console.log('║                                    ║');
+    console.log('║           DEV ROYALE                ║');
+    console.log('║                                    ║');
+    console.log('╚════════════════════════════════════╝');
+    console.log('\n✅ Mini App generated successfully!');
     console.log(`\n📁 Output directory: ${outputDir}`);
     console.log('\n📝 Next steps:');
     console.log(`  1. cd ${path.basename(outputDir)}`);
@@ -95,6 +102,7 @@ async function main() {
     console.log('  3. Add your NEXT_PUBLIC_ONCHAINKIT_API_KEY to .env.local');
     console.log('  4. npm install');
     console.log('  5. npm run dev');
+    console.log('\n');
     
     rl.close();
   } catch (error) {
