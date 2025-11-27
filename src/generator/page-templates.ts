@@ -4,10 +4,32 @@ export function generateSimplePage(config: MiniAppConfig): string {
   return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
+import { useQuickAuth } from '@/hooks/useQuickAuth';
 
 export default function Home() {
   const { user } = useMiniKit();
+  const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 className="text-3xl font-bold mb-4">Welcome to ${config.name}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">${config.description}</p>
+            <button
+              onClick={signIn}
+              disabled={isLoading}
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -22,7 +44,21 @@ export default function Home() {
           </p>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-2xl font-semibold mb-4">Hello, {displayName}!</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Hello, {displayName}!</h2>
+              <button
+                onClick={signOut}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                Sign Out
+              </button>
+            </div>
+            
+            {userData && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Authenticated as FID: {userData.fid}
+              </p>
+            )}
             
             <div className="space-y-4">
               ${config.features.map(feature => `
@@ -53,10 +89,32 @@ export function generateTransactionPage(config: MiniAppConfig): string {
 import { useMiniKit } from '@coinbase/onchainkit';
 import { Transaction, TransactionButton } from '@coinbase/onchainkit/transaction';
 import { Wallet } from '@coinbase/onchainkit/wallet';
+import { useQuickAuth } from '@/hooks/useQuickAuth';
 
 export default function Home() {
   const { user } = useMiniKit();
+  const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 className="text-3xl font-bold mb-4">${config.name}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">${config.description}</p>
+            <button
+              onClick={signIn}
+              disabled={isLoading}
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In to Continue'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Example contract configuration - update with your contract details
   const contractConfig = {
@@ -87,7 +145,21 @@ export default function Home() {
           </p>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-2xl font-semibold mb-4">Hello, {displayName}!</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Hello, {displayName}!</h2>
+              <button
+                onClick={signOut}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                Sign Out
+              </button>
+            </div>
+            
+            {userData && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Authenticated as FID: {userData.fid}
+              </p>
+            )}
             
             <div className="space-y-4 mb-6">
               ${config.features.map(feature => `
@@ -126,10 +198,32 @@ export function generateAgentIntegratedPage(config: MiniAppConfig): string {
   return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
+import { useQuickAuth } from '@/hooks/useQuickAuth';
 
 export default function Home() {
   const { user } = useMiniKit();
+  const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 className="text-3xl font-bold mb-4">${config.name}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">${config.description}</p>
+            <button
+              onClick={signIn}
+              disabled={isLoading}
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In to Continue'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleChatWithAgent = () => {
     const deeplink = \`cbwallet://messaging/${agentAddress}\`;
@@ -151,7 +245,21 @@ export default function Home() {
           </p>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-2xl font-semibold mb-4">Hello, {displayName}!</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Hello, {displayName}!</h2>
+              <button
+                onClick={signOut}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                Sign Out
+              </button>
+            </div>
+            
+            {userData && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Authenticated as FID: {userData.fid}
+              </p>
+            )}
             
             <div className="space-y-4 mb-6">
               ${config.features.map(feature => `
@@ -184,12 +292,34 @@ export function generateGamePage(config: MiniAppConfig): string {
   return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
+import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { useState } from 'react';
 
 export default function Home() {
   const { user } = useMiniKit();
+  const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
   const [score, setScore] = useState(0);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-purple-900 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 className="text-3xl font-bold mb-4">${config.name}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">${config.description}</p>
+            <button
+              onClick={signIn}
+              disabled={isLoading}
+              className="bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In to Play'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-purple-900">
@@ -200,6 +330,22 @@ export default function Home() {
           </h1>
           
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">${config.name}</h2>
+              <button
+                onClick={signOut}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                Sign Out
+              </button>
+            </div>
+            
+            {userData && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Authenticated as FID: {userData.fid}
+              </p>
+            )}
+            
             <div className="text-center mb-6">
               <p className="text-3xl font-bold mb-2">Score: {score}</p>
               <p className="text-gray-600 dark:text-gray-400">Player: {displayName}</p>
@@ -233,13 +379,35 @@ export function generatePollPage(config: MiniAppConfig): string {
   return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
+import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { useState } from 'react';
 
 export default function Home() {
   const { user } = useMiniKit();
+  const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [votes, setVotes] = useState({ option1: 0, option2: 0, option3: 0 });
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-green-900 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 className="text-3xl font-bold mb-4">${config.name}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">${config.description}</p>
+            <button
+              onClick={signIn}
+              disabled={isLoading}
+              className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In to Vote'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const options = ['Option 1', 'Option 2', 'Option 3'];
 
@@ -262,7 +430,21 @@ export default function Home() {
           </h1>
           
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-2xl font-semibold mb-6">Cast your vote</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">Cast your vote</h2>
+              <button
+                onClick={signOut}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                Sign Out
+              </button>
+            </div>
+            
+            {userData && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Authenticated as FID: {userData.fid}
+              </p>
+            )}
             
             <div className="space-y-4">
               {options.map((option, index) => {
@@ -320,6 +502,7 @@ export function generateNFTGalleryPage(config: MiniAppConfig): string {
   return `'use client';
 
 import { useMiniKit } from '@coinbase/onchainkit';
+import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { useState } from 'react';
 
 interface NFT {
@@ -337,16 +520,51 @@ const mockNFTs: NFT[] = [
 
 export default function Home() {
   const { user } = useMiniKit();
+  const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = user?.displayName || 'Friend';
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white dark:from-gray-900 dark:to-pink-900 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 className="text-3xl font-bold mb-4">${config.name}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">${config.description}</p>
+            <button
+              onClick={signIn}
+              disabled={isLoading}
+              className="bg-pink-500 hover:bg-pink-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In to View Gallery'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white dark:from-gray-900 dark:to-pink-900">
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-4">
-            ${config.name}
-          </h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-4xl font-bold">
+              ${config.name}
+            </h1>
+            <button
+              onClick={signOut}
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            >
+              Sign Out
+            </button>
+          </div>
+          
+          {userData && (
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 text-center">
+              Authenticated as FID: {userData.fid}
+            </p>
+          )}
           
           <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
             Welcome, {displayName}! Browse the collection below.

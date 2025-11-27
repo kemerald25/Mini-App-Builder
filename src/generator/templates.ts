@@ -65,6 +65,8 @@ export function generateManifest(config: MiniAppConfig): string {
 
 export function generateEnvExample(): string {
   return `NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_api_key_here
+NEXT_PUBLIC_BACKEND_ORIGIN=http://localhost:3000
+QUICK_AUTH_DOMAIN=your-domain.com
 `;
 }
 
@@ -81,6 +83,8 @@ export function generatePackageJson(config: MiniAppConfig): string {
   },
   "dependencies": {
     "@coinbase/onchainkit": "latest",
+    "@farcaster/miniapp-sdk": "latest",
+    "@farcaster/quick-auth": "latest",
     "next": "^14.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
@@ -180,7 +184,9 @@ export function generateGlobalsCSS(): string {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 `;
 }

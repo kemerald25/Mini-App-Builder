@@ -25,6 +25,17 @@ npm install
 
 **Note:** The builder tool doesn't require OnchainKit/MiniKit packages - it only generates code. The generated Mini Apps will need those packages installed separately. See [PACKAGE_SETUP.md](./PACKAGE_SETUP.md) for details.
 
+### Environment Setup
+
+Create a `.env.local` file in the root directory:
+
+```bash
+QUICK_AUTH_DOMAIN=localhost:3000
+NEXT_PUBLIC_BACKEND_ORIGIN=http://localhost:3000
+```
+
+For production, update `QUICK_AUTH_DOMAIN` to match your deployment domain.
+
 ### Development
 
 Run the web interface:
@@ -116,12 +127,19 @@ When generating a Mini App, you can specify:
 - OnchainKit components for wallet/transactions
 - Clear CTAs, smooth onboarding
 - Social sharing built-in
+- Use system fonts (Base App CSP compliant)
 
 ### Manifest
 - Complete all required fields
 - Use high-quality images (1024x1024px icon, no transparency)
 - Set appropriate category and tags
 - Include webhook URL if needed
+
+### Content Security Policy (CSP)
+- Base App enforces strict CSP policies
+- Generated apps use system fonts (no external font loading)
+- All assets should be hosted on your domain
+- See [CSP_FIXES.md](./CSP_FIXES.md) for more details
 
 ## Deployment
 

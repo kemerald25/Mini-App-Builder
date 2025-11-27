@@ -25,8 +25,11 @@ export async function POST(request: NextRequest) {
     const safeName = config.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const filename = `${safeName || 'miniapp'}.zip`;
 
+    // Convert buffer to Uint8Array for NextResponse
+    const uint8Array = new Uint8Array(zipBuffer);
+
     // Return the zip file as a response
-    return new NextResponse(zipBuffer, {
+    return new NextResponse(uint8Array, {
       headers: {
         'Content-Type': 'application/zip',
         'Content-Disposition': `attachment; filename="${filename}"`,

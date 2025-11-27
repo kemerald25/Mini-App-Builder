@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import MiniAppForm from '@/components/MiniAppForm';
 import { MiniAppConfig } from '@/types';
+import { useQuickAuth } from '@/hooks/useQuickAuth';
 
 export default function Home() {
+  const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [appName, setAppName] = useState<string>('');
 
@@ -63,17 +65,54 @@ export default function Home() {
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+            <h1 className="text-3xl font-bold mb-4">Mini App Builder</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Generate production-ready Next.js Mini Apps for Base
+            </p>
+            <button
+              onClick={signIn}
+              disabled={isLoading}
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Signing in...' : 'Sign In to Continue'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">
-              Mini App Builder
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
-              Generate production-ready Next.js Mini Apps for Base
-            </p>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">
+                Mini App Builder
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-400">
+                Generate production-ready Next.js Mini Apps for Base
+              </p>
+            </div>
+            <div className="text-right">
+              {userData && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  FID: {userData.fid}
+                </p>
+              )}
+              <button
+                onClick={signOut}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
 
           {isGenerating ? (
