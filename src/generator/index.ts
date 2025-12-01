@@ -16,6 +16,7 @@ import {
   generateExplorePage,
   generateProfilePage,
   generateSettingsPage,
+  generateWalletConnectLoggerShim,
 } from './templates.js';
 import {
   generateSimplePage,
@@ -159,7 +160,7 @@ export class MiniAppGenerator {
     });
 
     files.push({
-      path: 'next.config.mjs',
+      path: 'next.config.js',
       content: generateNextConfig(),
     });
 
@@ -172,7 +173,7 @@ export class MiniAppGenerator {
       path: 'postcss.config.mjs',
       content: `export default {
   plugins: {
-    '@tailwindcss/postcss': {},
+    tailwindcss: {},
     autoprefixer: {},
   },
 };
@@ -183,8 +184,17 @@ export class MiniAppGenerator {
     files.push({
       path: 'src/utils/empty-module.js',
       content: `// Empty module stub for optional dependencies
-module.exports = {};
+const empty = {};
+
+export default empty;
+module.exports = empty;
 `,
+    });
+
+    // WalletConnect logger shim to avoid pulling heavy peer dependencies
+    files.push({
+      path: 'src/utils/walletconnect-logger.ts',
+      content: generateWalletConnectLoggerShim(),
     });
 
     files.push({

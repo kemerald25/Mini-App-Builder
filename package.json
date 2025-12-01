@@ -1,6 +1,6 @@
 {
   "name": "@devroyale/miniapp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "AI Agent-powered Mini App builder for Base",
   "type": "module",
   "main": "dist/cli.js",

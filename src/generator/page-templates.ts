@@ -3,16 +3,14 @@ import { MiniAppConfig } from '../types.js';
 export function generateSimplePage(config: MiniAppConfig): string {
   return `'use client';
 
-import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { BottomNav } from '@/components/BottomNav';
 import { BrandFooter } from '@/components/BrandFooter';
 import { Zap, Activity, Sparkles, Shield, ArrowRight, Bell, Wallet, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
-  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
-  const displayName = user?.displayName || 'Friend';
+  const displayName = userData?.fid ? 'Explorer #' + userData.fid : 'Friend';
 
   const containerClasses = 'min-h-screen bg-[#0A0B0D] text-white';
   const shellClasses = 'max-w-[430px] mx-auto px-4 py-8 pb-32 space-y-6';
@@ -213,7 +211,6 @@ export default function Home() {
 export function generateTransactionPage(config: MiniAppConfig): string {
   return `'use client';
 
-import { useOnchainKit } from '@coinbase/onchainkit';
 import { Transaction, TransactionButton } from '@coinbase/onchainkit/transaction';
 import { Wallet } from '@coinbase/onchainkit/wallet';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
@@ -222,9 +219,8 @@ import { BrandFooter } from '@/components/BrandFooter';
 import { Zap, Shield, ArrowRight } from 'lucide-react';
 
 export default function Home() {
-  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
-  const displayName = user?.displayName || 'Friend';
+  const displayName = userData?.fid ? 'Explorer #' + userData.fid : 'Friend';
 
   const containerClasses = 'min-h-screen bg-[#0A0B0D] text-white';
   const shellClasses = 'max-w-[430px] mx-auto px-4 py-8 pb-32 space-y-6';
@@ -363,16 +359,14 @@ export function generateAgentIntegratedPage(config: MiniAppConfig): string {
   
   return `'use client';
 
-import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { BottomNav } from '@/components/BottomNav';
 import { BrandFooter } from '@/components/BrandFooter';
 import { Bot, MessageCircle, Zap } from 'lucide-react';
 
 export default function Home() {
-  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
-  const displayName = user?.displayName || 'Friend';
+  const displayName = userData?.fid ? 'Explorer #' + userData.fid : 'Friend';
 
   const containerClasses = 'min-h-screen bg-[#0A0B0D] text-white';
   const shellClasses = 'max-w-[430px] mx-auto px-4 py-8 pb-32 space-y-6';
@@ -508,7 +502,6 @@ export default function Home() {
 export function generateGamePage(config: MiniAppConfig): string {
   return `'use client';
 
-import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { BottomNav } from '@/components/BottomNav';
 import { BrandFooter } from '@/components/BrandFooter';
@@ -516,9 +509,8 @@ import { Gamepad2, RefreshCcw, Zap } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Home() {
-  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
-  const displayName = user?.displayName || 'Friend';
+  const displayName = userData?.fid ? 'Explorer #' + userData.fid : 'Friend';
   const [score, setScore] = useState(0);
 
   const containerClasses = 'min-h-screen bg-[#0A0B0D] text-white';
@@ -617,7 +609,6 @@ export default function Home() {
 export function generatePollPage(config: MiniAppConfig): string {
   return `'use client';
 
-import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { BottomNav } from '@/components/BottomNav';
 import { BrandFooter } from '@/components/BrandFooter';
@@ -625,9 +616,8 @@ import { Vote, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Home() {
-  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
-  const displayName = user?.displayName || 'Friend';
+  const displayName = userData?.fid ? 'Explorer #' + userData.fid : 'Friend';
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [votes, setVotes] = useState({ option1: 0, option2: 0, option3: 0 });
 
@@ -719,119 +709,134 @@ export default function Home() {
 export function generateNFTGalleryPage(config: MiniAppConfig): string {
   return `'use client';
 
-import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
+import { BottomNav } from '@/components/BottomNav';
+import { BrandFooter } from '@/components/BrandFooter';
+import { Image as ImageIcon, X } from 'lucide-react';
 import { useState } from 'react';
 
-interface NFT {
+type NFT = {
   id: number;
   name: string;
   image: string;
   description: string;
-}
+};
 
 const mockNFTs: NFT[] = [
-  { id: 1, name: 'NFT #1', image: 'https://via.placeholder.com/300', description: 'A beautiful NFT' },
-  { id: 2, name: 'NFT #2', image: 'https://via.placeholder.com/300', description: 'Another amazing NFT' },
-  { id: 3, name: 'NFT #3', image: 'https://via.placeholder.com/300', description: 'Stunning artwork' },
+  { id: 1, name: 'Aurora Bloom', image: 'https://via.placeholder.com/640x480', description: 'Dynamic gradients inspired by Base blocks.' },
+  { id: 2, name: 'Neon Bridge', image: 'https://via.placeholder.com/640x480', description: 'Cyberpunk skyline rendered in Base blue.' },
+  { id: 3, name: 'Circuit Blossom', image: 'https://via.placeholder.com/640x480', description: 'Organic patterns blending with circuitry.' },
 ];
 
 export default function Home() {
-  const { user } = useOnchainKit();
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
-  const displayName = user?.displayName || 'Friend';
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
+  const displayName = userData?.fid ? \`Explorer #\${userData.fid}\` : 'Friend';
+
+  const containerClasses = 'min-h-screen bg-[#0A0B0D] text-white';
+  const shellClasses = 'max-w-[430px] mx-auto px-4 py-8 pb-32 space-y-6';
+  const cardClasses =
+    'bg-[#141519] border border-[#1E1F25] rounded-2xl p-6 shadow-[0px_25px_80px_rgba(0,82,255,0.08)] transition-colors duration-300 hover:border-[#0052FF]/40';
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white dark:from-gray-900 dark:to-pink-900 flex items-center justify-center">
-        <div className="max-w-md mx-auto px-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
-            <h1 className="text-3xl font-bold mb-4">${config.name}</h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">${config.description}</p>
-            <button
-              onClick={signIn}
-              disabled={isLoading}
-              className="bg-pink-500 hover:bg-pink-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-            >
-              {isLoading ? 'Signing in...' : 'Sign In to View Gallery'}
-            </button>
+      <>
+        <main className={containerClasses}>
+          <div className="flex min-h-screen items-center justify-center px-4 pb-32">
+            <div className="w-full max-w-[380px] space-y-8 text-center">
+              <div className={\`\${cardClasses} space-y-4\`}>
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-[#0052FF]/30 bg-[#0052FF]/15">
+                  <ImageIcon className="h-8 w-8 text-[#00D4FF]" />
+                </div>
+                <h1 className="text-3xl font-bold">
+                  <span className="bg-gradient-to-r from-[#0052FF] to-[#00D4FF] bg-clip-text text-transparent">
+                    ${config.name}
+                  </span>
+                </h1>
+                <p className="text-sm text-[#A0A0A0]">${config.description}</p>
+                <button
+                  onClick={signIn}
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-[#0052FF] to-[#0066FF] text-white font-semibold py-3 px-6 rounded-xl shadow-[0px_20px_45px_rgba(0,82,255,0.35)] transition-all duration-200 hover:shadow-[0px_25px_55px_rgba(0,82,255,0.55)] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Connecting…' : 'Connect Wallet'}
+                </button>
+              </div>
+              <BrandFooter />
+            </div>
           </div>
-          ${generateFooter()}
-        </div>
-      </div>
+        </main>
+        <BottomNav />
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white dark:from-gray-900 dark:to-pink-900">
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-4xl font-bold">
-              ${config.name}
+    <>
+      <main className={containerClasses}>
+        <div className={shellClasses}>
+          <header className="space-y-3 border-b border-[#1E1F25] pb-6">
+            <p className="text-xs uppercase tracking-[0.25em] text-[#A0A0A0]">Gallery</p>
+            <h1 className="text-3xl font-bold">
+              <span className="bg-gradient-to-r from-[#0052FF] to-[#00D4FF] bg-clip-text text-transparent">
+                ${config.name}
+              </span>
             </h1>
+            <p className="text-sm text-[#A0A0A0]">Curated pieces for {displayName}</p>
+          </header>
+
+          <section className={\`\${cardClasses} space-y-4\`}>
+            <div className="grid grid-cols-1 gap-4">
+              {mockNFTs.map((nft) => (
+                <button
+                  key={nft.id}
+                  onClick={() => setSelectedNFT(nft)}
+                  className="flex items-center gap-4 rounded-2xl border border-[#1E1F25] bg-[#0F1116] p-4 text-left transition-all duration-200 hover:border-[#0052FF]/40"
+                >
+                  <div className="h-16 w-16 overflow-hidden rounded-xl border border-[#1E1F25] bg-[#141519]">
+                    <img src={nft.image} alt={nft.name} className="h-full w-full object-cover" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold">{nft.name}</p>
+                    <p className="text-xs text-[#A0A0A0]">{nft.description}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {selectedNFT && (
+            <section className={\`\${cardClasses} space-y-3\`}>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">{selectedNFT.name}</h3>
+                <button
+                  onClick={() => setSelectedNFT(null)}
+                  className="rounded-full border border-[#1E1F25] p-2 text-[#A0A0A0] hover:border-[#0052FF]/40 hover:text-white transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="overflow-hidden rounded-xl border border-[#1E1F25]">
+                <img src={selectedNFT.image} alt={selectedNFT.name} className="w-full object-cover" />
+              </div>
+              <p className="text-sm text-[#A0A0A0]">{selectedNFT.description}</p>
+            </section>
+          )}
+
+          <section className={cardClasses}>
             <button
               onClick={signOut}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              className="w-full bg-[#1E1F25] border border-[#2A2B35] text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 hover:border-[#0052FF]/40"
             >
               Sign Out
             </button>
-          </div>
-          
-          {userData && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 text-center">
-              Authenticated as FID: {userData.fid}
-            </p>
-          )}
-          
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-            Welcome, {displayName}! Browse the collection below.
-          </p>
+          </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockNFTs.map((nft) => (
-              <div
-                key={nft.id}
-                onClick={() => setSelectedNFT(nft)}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-              >
-                <img
-                  src={nft.image}
-                  alt={nft.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-xl font-semibold mb-2">{nft.name}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">{nft.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {selectedNFT && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
-                <img
-                  src={selectedNFT.image}
-                  alt={selectedNFT.name}
-                  className="w-full rounded-lg mb-4"
-                />
-                <h2 className="text-2xl font-bold mb-2">{selectedNFT.name}</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">{selectedNFT.description}</p>
-                <button
-                  onClick={() => setSelectedNFT(null)}
-                  className="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
-          ${generateFooter()}
+          <BrandFooter />
         </div>
       </main>
-    </div>
+      <BottomNav />
+    </>
   );
 }
 `;

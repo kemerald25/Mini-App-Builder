@@ -1,4 +1,4 @@
-import { generateLayout, generateManifest, generateEnvExample, generatePackageJson, generateTsConfig, generateNextConfig, generateTailwindConfig, generateGlobalsCSS, generateAppKitConfig, generateAppKitContext, generateOnchainKitProvider, generateBottomNav, generateExplorePage, generateProfilePage, generateSettingsPage, } from './templates.js';
+import { generateLayout, generateManifest, generateEnvExample, generatePackageJson, generateTsConfig, generateNextConfig, generateTailwindConfig, generateGlobalsCSS, generateAppKitConfig, generateAppKitContext, generateOnchainKitProvider, generateBottomNav, generateBrandFooter, generateExplorePage, generateProfilePage, generateSettingsPage, generateWalletConnectLoggerShim, } from './templates.js';
 import { generateSimplePage, generateTransactionPage, generateAgentIntegratedPage, generateGamePage, generatePollPage, generateNFTGalleryPage, } from './page-templates.js';
 import { generateAuthHook, generateAuthApiRoute } from './auth-templates.js';
 // These imports are safe in Node.js environments (CLI and API routes)
@@ -83,6 +83,10 @@ export class MiniAppGenerator {
             path: 'components/BottomNav.tsx',
             content: generateBottomNav(),
         });
+        files.push({
+            path: 'components/BrandFooter.tsx',
+            content: generateBrandFooter(),
+        });
         // Additional pages
         files.push({
             path: 'app/explore/page.tsx',
@@ -111,7 +115,7 @@ export class MiniAppGenerator {
             content: generateTsConfig(),
         });
         files.push({
-            path: 'next.config.mjs',
+            path: 'next.config.js',
             content: generateNextConfig(),
         });
         files.push({
@@ -122,7 +126,7 @@ export class MiniAppGenerator {
             path: 'postcss.config.mjs',
             content: `export default {
   plugins: {
-    '@tailwindcss/postcss': {},
+    tailwindcss: {},
     autoprefixer: {},
   },
 };
@@ -132,8 +136,16 @@ export class MiniAppGenerator {
         files.push({
             path: 'src/utils/empty-module.js',
             content: `// Empty module stub for optional dependencies
-module.exports = {};
+const empty = {};
+
+export default empty;
+module.exports = empty;
 `,
+        });
+        // WalletConnect logger shim to avoid pulling heavy peer dependencies
+        files.push({
+            path: 'src/utils/walletconnect-logger.ts',
+            content: generateWalletConnectLoggerShim(),
         });
         files.push({
             path: '.env.example',

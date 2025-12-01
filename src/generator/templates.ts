@@ -112,8 +112,8 @@ export function generatePackageJson(config: MiniAppConfig): string {
     "@devroyale/miniapp": "latest",
     "@farcaster/miniapp-sdk": "latest",
     "@farcaster/quick-auth": "latest",
-    "@reown/appkit": "latest",
-    "@reown/appkit-adapter-wagmi": "latest",
+    "@reown/appkit": "1.8.14-cc0928045461a473e8850f4bd5ee072c53e54502.0",
+    "@reown/appkit-adapter-wagmi": "1.8.14-cc0928045461a473e8850f4bd5ee072c53e54502.0",
     "@tanstack/react-query": "latest",
     "lucide-react": "latest",
     "next": "latest",
@@ -126,13 +126,15 @@ export function generatePackageJson(config: MiniAppConfig): string {
     "@types/node": "latest",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@tailwindcss/postcss": "latest",
     "autoprefixer": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "postcss": "latest",
-    "tailwindcss": "latest",
-    "typescript": "latest"
+    "tailwindcss": "^3.4.6",
+    "tape": "^5.8.1",
+    "typescript": "latest",
+    "webpack": "^5.95.0",
+    "why-is-node-running": "^2.2.2"
   },
   "overrides": {
     "react": "^19.0.0",
@@ -174,54 +176,356 @@ export function generateTsConfig(): string {
 }
 
 export function generateNextConfig(): string {
-  return `import path from 'path';
-import { fileURLToPath } from 'url';
+  return `const path = require('path');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const aliasEntries = {
+  '@walletconnect/logger': path.resolve(__dirname, 'src/utils/walletconnect-logger.ts'),
+  '@gemini-wallet/core': path.resolve(__dirname, 'src/utils/empty-module.js'),
+  'why-is-node-running': path.resolve(__dirname, 'src/utils/empty-module.js'),
+  tape: path.resolve(__dirname, 'src/utils/empty-module.js'),
+  tap: path.resolve(__dirname, 'src/utils/empty-module.js'),
+  desm: path.resolve(__dirname, 'src/utils/empty-module.js'),
+  'pino-elasticsearch': path.resolve(__dirname, 'src/utils/empty-module.js'),
+  fastbench: path.resolve(__dirname, 'src/utils/empty-module.js'),
+  'thread-stream': path.resolve(__dirname, 'src/utils/empty-module.js'),
+};
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   webpack: (config) => {
-    // Add externals for optional dependencies
-    config.externals.push('pino-pretty', 'lokijs', 'encoding');
-    
-    // Create alias for optional wallet connector dependencies to empty modules
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@gemini-wallet/core': path.resolve(__dirname, 'src/utils/empty-module.js'),
-      '@solana/kit': path.resolve(__dirname, 'src/utils/empty-module.js'),
+      ...aliasEntries,
     };
-    
     return config;
   },
   turbopack: {
+    root: __dirname,
     resolveAlias: {
+      '@walletconnect/logger': './src/utils/walletconnect-logger.ts',
       '@gemini-wallet/core': './src/utils/empty-module.js',
-      '@solana/kit': './src/utils/empty-module.js',
+      'why-is-node-running': './src/utils/empty-module.js',
+      tape: './src/utils/empty-module.js',
+      tap: './src/utils/empty-module.js',
+      desm: './src/utils/empty-module.js',
+      'pino-elasticsearch': './src/utils/empty-module.js',
+      fastbench: './src/utils/empty-module.js',
+      'thread-stream': './src/utils/empty-module.js',
     },
   },
-}
+};
 
-export default nextConfig;
+module.exports = nextConfig;
 `;
 }
 
 export function generateTailwindConfig(): string {
-  return `import type { Config } from 'tailwindcss'
+  return `import type { Config } from 'tailwindcss';
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 const config: Config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './context/**/*.{js,ts,jsx,tsx,mdx}',
+    './hooks/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'royale-blue': '#0052FF',
+        'royale-blue-dark': '#0033CC',
+        'royale-cyan': '#00D4FF',
+        'royale-background': '#0A0B0D',
+        'royale-card': '#141519',
+      },
+      fontFamily: {
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+      },
+      boxShadow: {
+        'royale-glow': '0px 25px 80px rgba(0, 82, 255, 0.25)',
+      },
+    },
   },
   plugins: [],
+};
+export default config;
+`;
 }
-export default config
+
+export function generateWalletConnectLoggerShim(): string {
+  return `'use client';
+
+const LEVEL_VALUES = {
+  fatal: 60,
+  error: 50,
+  warn: 40,
+  info: 30,
+  debug: 20,
+  trace: 10,
+} as const;
+
+type Level = keyof typeof LEVEL_VALUES;
+
+type LoggerOptions = {
+  level?: Level;
+};
+
+type LoggerFactoryOptions = {
+  opts?: LoggerOptions;
+  maxSizeInBytes?: number;
+  loggerOverride?: SimpleLogger;
+};
+
+const CONTEXT_SYMBOL = Symbol('wcLoggerContext');
+
+export const levels = { values: LEVEL_VALUES };
+export const PINO_LOGGER_DEFAULTS: LoggerOptions = { level: 'info' };
+export const PINO_CUSTOM_CONTEXT_KEY = 'custom_context';
+export const MAX_LOG_SIZE_IN_BYTES_DEFAULT = 1000 * 1024;
+
+const levelToConsole: Record<Level | 'fatal', keyof Console> = {
+  fatal: 'error',
+  error: 'error',
+  warn: 'warn',
+  info: 'info',
+  debug: 'debug',
+  trace: 'debug',
+};
+
+const safeStringify = (value: unknown) => {
+  try {
+    return typeof value === 'string' ? value : JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+};
+
+class InMemoryLogBuffer {
+  private logs: string[] = [];
+  private currentSize = 0;
+
+  constructor(private readonly maxSize = MAX_LOG_SIZE_IN_BYTES_DEFAULT) {}
+
+  append(entry: string) {
+    this.logs.push(entry);
+    this.currentSize += entry.length;
+
+    while (this.currentSize > this.maxSize && this.logs.length) {
+      const removed = this.logs.shift();
+      this.currentSize -= removed?.length ?? 0;
+    }
+  }
+
+  toArray() {
+    return [...this.logs];
+  }
+
+  clear() {
+    this.logs = [];
+    this.currentSize = 0;
+  }
+}
+
+export class ChunkLoggerController {
+  private buffer: InMemoryLogBuffer;
+
+  constructor(public level: Level = 'info', maxSizeInBytes = MAX_LOG_SIZE_IN_BYTES_DEFAULT) {
+    this.buffer = new InMemoryLogBuffer(maxSizeInBytes);
+  }
+
+  private record(entry: string) {
+    this.buffer.append(
+      safeStringify({
+        timestamp: new Date().toISOString(),
+        entry,
+      })
+    );
+  }
+
+  write(entry: string) {
+    this.record(entry);
+  }
+
+  appendToLogs(entry: string) {
+    this.record(entry);
+  }
+
+  getLogs() {
+    return this.buffer.toArray();
+  }
+
+  clearLogs() {
+    this.buffer.clear();
+  }
+
+  getLogArray() {
+    return this.getLogs();
+  }
+
+  logsToBlob(extra?: Record<string, unknown>) {
+    if (typeof Blob === 'undefined') {
+      return null;
+    }
+
+    const payload = this.getLogArray();
+    if (extra) {
+      payload.push(safeStringify({ extraMetadata: extra }));
+    }
+
+    return new Blob(payload, { type: 'application/json' });
+  }
+
+  downloadLogsBlobInBrowser(extra?: Record<string, unknown>) {
+    if (typeof window === 'undefined') return;
+    const blob = this.logsToBlob(extra);
+    if (!blob) return;
+
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'walletconnect-logs-' + new Date().toISOString() + '.txt';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
+  }
+}
+
+class SimpleLogger {
+  level: Level;
+  bindings: Record<string, unknown>;
+
+  constructor(private opts: LoggerOptions = {}, bindings: Record<string, unknown> = {}, private chunk?: ChunkLoggerController | null) {
+    this.level = (opts?.level as Level) ?? PINO_LOGGER_DEFAULTS.level!;
+    this.bindings = { ...bindings };
+  }
+
+  private log(level: Level, args: unknown[]) {
+    const consoleMethod = levelToConsole[level] ?? 'log';
+    const contextValue = getLoggerContext(this);
+    const payload = contextValue ? ['[' + contextValue + ']', ...args] : args;
+    const consoleTarget = (console as unknown as Record<string, unknown>)[consoleMethod];
+    const loggerFn =
+      typeof consoleTarget === 'function'
+        ? (consoleTarget as (...loggerArgs: unknown[]) => void).bind(console)
+        : console.log.bind(console);
+    loggerFn(...payload);
+
+    if (this.chunk) {
+      this.chunk.write(
+        safeStringify({
+          level: LEVEL_VALUES[level],
+          context: contextValue,
+          message: payload.map(safeStringify).join(' '),
+        })
+      );
+    }
+  }
+
+  fatal(...args: unknown[]) {
+    this.log('fatal', args);
+  }
+
+  error(...args: unknown[]) {
+    this.log('error', args);
+  }
+
+  warn(...args: unknown[]) {
+    this.log('warn', args);
+  }
+
+  info(...args: unknown[]) {
+    this.log('info', args);
+  }
+
+  debug(...args: unknown[]) {
+    this.log('debug', args);
+  }
+
+  trace(...args: unknown[]) {
+    this.log('trace', args);
+  }
+
+  child(bindings: Record<string, unknown> = {}) {
+    return new SimpleLogger(this.opts, { ...this.bindings, ...bindings }, this.chunk);
+  }
+}
+
+function ensureContextStore(logger: SimpleLogger) {
+  if (!(logger as any)[CONTEXT_SYMBOL]) {
+    (logger as any)[CONTEXT_SYMBOL] = {};
+  }
+  return (logger as any)[CONTEXT_SYMBOL] as Record<string, string>;
+}
+
+export function setLoggerContext(logger: SimpleLogger, value: string, key = PINO_CUSTOM_CONTEXT_KEY) {
+  const store = ensureContextStore(logger);
+  store[key] = value;
+  logger.bindings[key] = value;
+}
+
+export function getLoggerContext(logger: SimpleLogger, key = PINO_CUSTOM_CONTEXT_KEY) {
+  return ((logger as any)[CONTEXT_SYMBOL]?.[key] as string) ?? '';
+}
+
+export function formatChildLoggerContext(bindings: Record<string, unknown> | string | undefined, childName: string, key = PINO_CUSTOM_CONTEXT_KEY) {
+  const base =
+    typeof bindings === 'string'
+      ? bindings
+      : typeof bindings === 'object' && bindings !== null
+        ? (bindings as Record<string, unknown>)[key]
+        : '';
+  return base ? base + '/' + childName : childName;
+}
+
+function createLogger(opts?: LoggerOptions, chunk?: ChunkLoggerController | null) {
+  const logger = new SimpleLogger(opts, {}, chunk ?? undefined);
+  if (opts?.level) {
+    logger.level = opts.level;
+  }
+  return logger;
+}
+
+export function getDefaultLoggerOptions<T extends LoggerOptions>(opts?: T) {
+  return opts ?? ({ ...PINO_LOGGER_DEFAULTS } as T);
+}
+
+export function generateClientLogger(options: LoggerFactoryOptions = {}) {
+  const chunkLoggerController = new ChunkLoggerController(options?.opts?.level, options?.maxSizeInBytes);
+  const logger = createLogger(options?.opts, chunkLoggerController);
+  return { logger, chunkLoggerController };
+}
+
+export function generateServerLogger(options: LoggerFactoryOptions = {}) {
+  return generateClientLogger(options);
+}
+
+export function generatePlatformLogger(options: LoggerFactoryOptions = {}) {
+  if (options.loggerOverride && typeof options.loggerOverride !== 'string') {
+    return { logger: options.loggerOverride, chunkLoggerController: null };
+  }
+  return typeof window === 'undefined' ? generateServerLogger(options) : generateClientLogger(options);
+}
+
+export function generateChildLogger(logger: SimpleLogger, childName: string, key = PINO_CUSTOM_CONTEXT_KEY) {
+  const contextValue = formatChildLoggerContext(logger.bindings ?? { [key]: getLoggerContext(logger, key) }, childName, key);
+  const child = logger.child({ [key]: contextValue });
+  setLoggerContext(child, contextValue, key);
+  return child;
+}
+
+export function pino(opts?: LoggerOptions) {
+  const logger = createLogger(opts);
+  return logger;
+}
+
+(pino as any).levels = levels;
+(pino as any).pino = pino;
+
+export default pino;
 `;
 }
 
@@ -378,16 +682,16 @@ const metadata = {
 // Always create AppKit (even without projectId, it will work in miniapp mode)
 // Use a dummy projectId if none is provided to prevent errors
 const appKitProjectId = projectId || '00000000000000000000000000000000';
-createAppKit({
-  adapters: [wagmiAdapter],
+  createAppKit({
+    adapters: [wagmiAdapter],
   projectId: appKitProjectId,
-  networks: [base],
-  defaultNetwork: base,
-  metadata: metadata,
-  features: {
+    networks: [base],
+    defaultNetwork: base,
+    metadata: metadata,
+    features: {
     analytics: !!projectId, // Only enable analytics if projectId is set
-  },
-});
+    },
+  });
 
 function ContextProvider({ children, cookies }: { children: ReactNode; cookies: string | null }) {
   const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig as Config, cookies);
@@ -505,7 +809,6 @@ export function generateProfilePage(config: MiniAppConfig): string {
 
 import { BottomNav } from '@/components/BottomNav';
 import { BrandFooter } from '@/components/BrandFooter';
-import { useOnchainKit } from '@coinbase/onchainkit';
 import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { User, Wallet, Award, Activity } from 'lucide-react';
 
@@ -515,9 +818,9 @@ const cardClasses =
   'bg-[#141519] border border-[#1E1F25] rounded-2xl p-6 shadow-[0px_25px_80px_rgba(0,82,255,0.08)] transition-colors duration-300 hover:border-[#0052FF]/40';
 
 export default function Profile() {
-  const { user } = useOnchainKit();
   const { userData } = useQuickAuth();
-  const displayName = user?.displayName || 'User';
+  const displayName =
+    userData?.fid ? 'Explorer #' + userData.fid : 'User';
 
   return (
     <>
