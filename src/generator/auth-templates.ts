@@ -235,11 +235,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { message, signature, address } = body;
 
-    // If we have message and signature, it's SIWF from miniapp
-    if (message && signature) {
+    // Check if this is a SIWF message from Farcaster miniapp
+    // SIWF messages contain "FID:" in the message text
+    const isSIWFMessage = message && signature && typeof message === 'string' && message.includes('FID:');
+    
+    if (isSIWFMessage) {
       try {
         // Extract FID from the SIWF message
-        // The message format is: "Sign in to <domain> with Farcaster\n\nFID: <fid>\nNonce: <nonce>"
+        // SIWF message format: Sign in to <domain> with Farcaster followed by FID and Nonce
         const fidMatch = message.match(/FID: (\\d+)/);
         const fid = fidMatch ? parseInt(fidMatch[1], 10) : null;
 
