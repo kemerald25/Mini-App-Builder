@@ -19,11 +19,34 @@ export function OnchainKitWrapper({ children }: { children: React.ReactNode }) {
 `;
 }
 
+export function generateMiniappReady(): string {
+  return `'use client';
+
+import { useEffect } from 'react';
+import { sdk } from '@farcaster/miniapp-sdk';
+
+export function MiniappReady() {
+  useEffect(() => {
+    // Call ready() to hide splash screen and display the app
+    // This is required for Farcaster miniapps
+    if (typeof window !== 'undefined' && sdk?.actions?.ready) {
+      sdk.actions.ready().catch((error) => {
+        console.warn('Failed to call sdk.actions.ready():', error);
+      });
+    }
+  }, []);
+
+  return null;
+}
+`;
+}
+
 export function generateLayout(config: MiniAppConfig): string {
   return `import './globals.css';
 import { headers } from 'next/headers';
 import ContextProvider from '@/context';
 import { OnchainKitWrapper } from '@/components/OnchainKitProvider';
+import { MiniappReady } from '@/components/MiniappReady';
 
 export const metadata = {
   title: '${config.name}',
@@ -41,6 +64,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="bg-[#0A0B0D] text-white antialiased">
+        <MiniappReady />
         <ContextProvider cookies={cookies}>
           <OnchainKitWrapper>
             {children}

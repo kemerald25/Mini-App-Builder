@@ -33,6 +33,11 @@ miniapp
 - 💻 **Web Interface** - Beautiful web UI for generating Mini Apps
 - 🔧 **CLI Tool** - Command-line interface for developers
 - 📦 **Complete Structure** - Generates all necessary files including manifests, layouts, and components
+- 🔐 **Auto Authentication** - Automatic Farcaster sign-in and wallet connection in miniapp environments (v1.0.7+)
+
+## Updating Existing Projects
+
+If you have an existing project created with an older version, see [MIGRATION.md](./MIGRATION.md) for instructions on updating to the latest version without starting fresh.
 
 ## Getting Started
 

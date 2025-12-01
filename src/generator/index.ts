@@ -11,6 +11,7 @@ import {
   generateAppKitConfig,
   generateAppKitContext,
   generateOnchainKitProvider,
+  generateMiniappReady,
   generateBottomNav,
   generateBrandFooter,
   generateExplorePage,
@@ -113,6 +114,12 @@ export class MiniAppGenerator {
     files.push({
       path: 'components/OnchainKitProvider.tsx',
       content: generateOnchainKitProvider(),
+    });
+
+    // Miniapp Ready component (calls sdk.actions.ready())
+    files.push({
+      path: 'components/MiniappReady.tsx',
+      content: generateMiniappReady(),
     });
 
     // Bottom Navigation component

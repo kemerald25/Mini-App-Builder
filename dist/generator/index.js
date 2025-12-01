@@ -1,4 +1,4 @@
-import { generateLayout, generateManifest, generateEnvExample, generatePackageJson, generateTsConfig, generateNextConfig, generateTailwindConfig, generateGlobalsCSS, generateAppKitConfig, generateAppKitContext, generateOnchainKitProvider, generateBottomNav, generateBrandFooter, generateExplorePage, generateProfilePage, generateSettingsPage, generateWalletConnectLoggerShim, } from './templates.js';
+import { generateLayout, generateManifest, generateEnvExample, generatePackageJson, generateTsConfig, generateNextConfig, generateTailwindConfig, generateGlobalsCSS, generateAppKitConfig, generateAppKitContext, generateOnchainKitProvider, generateMiniappReady, generateBottomNav, generateBrandFooter, generateExplorePage, generateProfilePage, generateSettingsPage, generateWalletConnectLoggerShim, } from './templates.js';
 import { generateSimplePage, generateTransactionPage, generateAgentIntegratedPage, generateGamePage, generatePollPage, generateNFTGalleryPage, } from './page-templates.js';
 import { generateAuthHook, generateAuthApiRoute } from './auth-templates.js';
 // These imports are safe in Node.js environments (CLI and API routes)
@@ -77,6 +77,11 @@ export class MiniAppGenerator {
         files.push({
             path: 'components/OnchainKitProvider.tsx',
             content: generateOnchainKitProvider(),
+        });
+        // Miniapp Ready component (calls sdk.actions.ready())
+        files.push({
+            path: 'components/MiniappReady.tsx',
+            content: generateMiniappReady(),
         });
         // Bottom Navigation component
         files.push({
