@@ -61,29 +61,18 @@ export function useQuickAuth() {
     try {
       setAuthState((prev) => ({ ...prev, isLoading: true }));
 
-      // Use Farcaster miniapp SDK for authentication and wallet connection
+      // Use Farcaster miniapp SDK for authentication
+      // Note: Wallet connection is handled automatically by wagmi in miniapp environment
       if (isMiniapp) {
         try {
-          // Step 1: Request wallet connection
-          let walletAddress: string | null = null;
-          try {
-            const accounts = await sdk.ethereum.request({ method: 'eth_requestAccounts' });
-            if (accounts && accounts.length > 0) {
-              walletAddress = accounts[0];
-            }
-          } catch (walletError) {
-            console.warn('Wallet connection failed:', walletError);
-            // Continue with sign-in even if wallet connection fails
-          }
-
-          // Step 2: Sign in with Farcaster (SIWF)
+          // Sign in with Farcaster (SIWF)
           const nonce = generateNonce();
           const { message, signature } = await sdk.actions.signIn({ 
             nonce,
             acceptAuthAddress: true 
           });
 
-          // Step 3: Send to backend for verification
+          // Send to backend for verification
           const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_ORIGIN || window.location.origin;
           const response = await fetch(\`\${backendOrigin}/api/auth\`, {
             method: 'POST',
@@ -93,7 +82,7 @@ export function useQuickAuth() {
             body: JSON.stringify({
               message,
               signature,
-              address: walletAddress,
+              address: address || null, // Use wagmi's address if available
             }),
           });
 
@@ -107,7 +96,7 @@ export function useQuickAuth() {
             token: signature, // Use signature as token
             userData: {
               fid: data.fid,
-              address: walletAddress || data.address,
+              address: address || data.address || null,
             },
             isLoading: false,
           });
